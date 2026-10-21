@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/context/AuthContext";
 import { Loader2, Leaf } from "lucide-react";
+import { toast } from "sonner";
 
 // Validation schemas
 const loginSchema = z.object({
@@ -84,9 +85,23 @@ export function AuthModal({ isOpen, onOpenChange, defaultTab = "login" }: AuthMo
 
   const handleGoogleLogin = async () => {
     setIsGoogleLoading(true);
-    await loginWithGoogle();
-    setIsGoogleLoading(false);
-    onOpenChange(false);
+    try {
+      await loginWithGoogle();
+      toast.success("Successfully logged in with Google!");
+      onOpenChange(false);
+    } catch (error: any) {
+      if (error?.code === "auth/popup-closed-by-user") {
+        // User closed the popup, no error toast needed
+      } else if (error?.code === "auth/configuration-not-found" || error?.code === "auth/operation-not-allowed") {
+        toast.error("Google sign-in is not enabled in Firebase Console. Please enable Google provider.");
+      } else if (error?.code === "auth/unauthorized-domain") {
+        toast.error("This domain is not authorized in Firebase Console (Authorized Domains).");
+      } else {
+        toast.error(error?.message || "Failed to sign in with Google.");
+      }
+    } finally {
+      setIsGoogleLoading(false);
+    }
   };
 
   return (
