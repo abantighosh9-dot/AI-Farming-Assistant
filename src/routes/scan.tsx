@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import jsPDF from "jspdf";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 
 import {
   analyzeCropImage,
@@ -116,53 +117,52 @@ function ScanPage() {
 
     try {
       setScanning(true);
-
       setResult(null);
 
       const aiResult = await analyzeCropImage(file);
-
       setResult(aiResult);
+      toast.success("Crop analysis completed successfully!");
     } catch (err: any) {
-      console.error(err);
-
-      alert(`Analysis failed: ${err.message || "Unknown error"}`);
+      console.error("Scan error:", err);
+      toast.error(`Analysis failed: ${err.message || "Unknown error"}`);
     } finally {
       setScanning(false);
     }
   }
 
-async function loadWeather() {
-  if (!city) {
-    alert("Please select a city.");
-    return;
+  async function loadWeather() {
+    if (!city) {
+      toast.error("Please select a city first.");
+      return;
+    }
+
+    try {
+      setWeatherLoading(true);
+      setWeather(null);
+      setWeatherAdvice(null);
+
+      const raw = await getWeather(city);
+      const summary = summariseWeather(raw);
+      setWeather(summary);
+
+      try {
+        const advice = await getWeatherAdvice(
+          summary,
+          result?.cropType || "general crops",
+          "en"
+        );
+        setWeatherAdvice(advice);
+      } catch (adviceErr: any) {
+        console.warn("Weather AI advice error:", adviceErr);
+        toast.error(`Weather advice note: ${adviceErr.message || "Failed to generate AI advice"}`);
+      }
+    } catch (err: any) {
+      console.error("Weather fetch error:", err);
+      toast.error(`Weather error: ${err.message || "Failed to fetch weather data"}`);
+    } finally {
+      setWeatherLoading(false);
+    }
   }
-
-  try {
-    setWeatherLoading(true);
-    setWeather(null);
-    setWeatherAdvice(null);
-
-    const raw = await getWeather(city);
-
-    const summary = summariseWeather(raw);
-
-    setWeather(summary);
-
-    const advice = await getWeatherAdvice(
-      summary,
-      result?.cropType || "general crops",
-      "en"
-    );
-
-    setWeatherAdvice(advice);
-  } catch (err: any) {
-    console.error(err);
-
-    alert(`Weather error: ${err.message || "Failed to fetch data"}`);
-  } finally {
-    setWeatherLoading(false);
-  }
-}
 
 function reset() {
   setFile(null);
