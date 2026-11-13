@@ -6,6 +6,15 @@ import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
   plugins: [TanStackRouterVite(), react(), tailwindcss(), tsconfigPaths()],
+  server: {
+    proxy: {
+      "/api/groq": {
+        target: "https://api.groq.com",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/groq/, ""),
+      },
+    },
+  },
   build: {
     outDir: "dist",
   },

@@ -25,7 +25,13 @@ import { toast } from "sonner";
 
 import { analyzeCropImage, getWeatherAdvice } from "../services/claudeService.js";
 
-import { getWeather, summariseWeather, INDIAN_CITIES } from "../services/weatherService.js";
+import {
+  getWeather,
+  summariseWeather,
+  generateLocalWeatherAdvice,
+  INDIAN_LOCATIONS,
+  INDIAN_CITIES,
+} from "../services/weatherService.js";
 
 export const Route = createFileRoute("/scan")({
   beforeLoad: ({ context }) => {
@@ -120,27 +126,32 @@ function ScanPage() {
     }
   }
 
-  async function loadWeather() {
-    if (!city) {
-      toast.error("Please select a city first.");
+  async function loadWeather(targetCity?: string) {
+    const loc = targetCity || city;
+    if (!loc) {
+      toast.error("Please select a location first.");
       return;
     }
 
     try {
       setWeatherLoading(true);
-      setWeather(null);
-      setWeatherAdvice(null);
 
-      const raw = await getWeather(city);
+      const raw = await getWeather(loc);
       const summary = summariseWeather(raw);
       setWeather(summary);
 
+      // Instantly generate and display verified agricultural weather advice
+      const localAdvice = generateLocalWeatherAdvice(summary, result?.cropType || "general crops");
+      setWeatherAdvice(localAdvice);
+
+      // Attempt AI-enriched advice (via Groq / proxy)
       try {
-        const advice = await getWeatherAdvice(summary, result?.cropType || "general crops", "en");
-        setWeatherAdvice(advice);
+        const aiAdvice = await getWeatherAdvice(summary, result?.cropType || "general crops", "en");
+        if (aiAdvice && (aiAdvice.mainAdvice || aiAdvice.irrigationAdvice)) {
+          setWeatherAdvice(aiAdvice);
+        }
       } catch (adviceErr: any) {
-        console.warn("Weather AI advice error:", adviceErr);
-        toast.error(`Weather advice note: ${adviceErr.message || "Failed to generate AI advice"}`);
+        console.warn("Weather AI advice note:", adviceErr);
       }
     } catch (err: any) {
       console.error("Weather fetch error:", err);
@@ -521,23 +532,29 @@ function ScanPage() {
 
           <select
             value={city}
-            onChange={(e) => setCity(e.target.value)}
-            className="w-full sm:w-auto bg-white/15 backdrop-blur border border-white/20 rounded-full px-4 py-2 text-sm font-medium text-white outline-none"
+            onChange={(e) => {
+              const val = e.target.value;
+              setCity(val);
+              if (val) {
+                loadWeather(val);
+              }
+            }}
+            className="w-full sm:w-auto bg-white/15 backdrop-blur border border-white/20 rounded-full px-4 py-2 text-sm font-medium text-white outline-none cursor-pointer"
           >
             <option value="" className="text-foreground">
               {t("scan_select_city")}
             </option>
 
-            {INDIAN_CITIES.map((c: string) => (
-              <option key={c} value={c} className="text-foreground">
-                {c}
+            {INDIAN_LOCATIONS.map((loc) => (
+              <option key={loc.label} value={loc.query} className="text-foreground">
+                {loc.label}
               </option>
             ))}
           </select>
         </div>
 
         <button
-          onClick={loadWeather}
+          onClick={() => loadWeather()}
           disabled={weatherLoading}
           className="mt-5 w-full sm:w-auto rounded-full bg-white text-black px-6 py-2.5 font-semibold disabled:opacity-50 flex items-center justify-center gap-2 shadow-lift hover:bg-white/90 transition"
         >
