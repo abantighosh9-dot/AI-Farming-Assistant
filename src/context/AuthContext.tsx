@@ -1,12 +1,12 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { 
-  signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword, 
-  signOut, 
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
   onAuthStateChanged,
   updateProfile,
   signInWithPopup,
-  GoogleAuthProvider
+  GoogleAuthProvider,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 
@@ -38,7 +38,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       if (firebaseUser) {
         setUser({
-          name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || "User",
+          name: firebaseUser.displayName || firebaseUser.email?.split("@")[0] || "User",
           email: firebaseUser.email || "",
         });
         setIsAuthenticated(true);
@@ -57,7 +57,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!password) throw new Error("Password is required.");
       await signInWithEmailAndPassword(auth, email, password);
     } catch (error: any) {
-      if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+      if (error.code === "auth/user-not-found" || error.code === "auth/invalid-credential") {
         throw new Error("Invalid email or password.");
       } else {
         throw new Error(error.message);
@@ -71,7 +71,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       provider.setCustomParameters({ prompt: "select_account" });
       await signInWithPopup(auth, provider);
     } catch (error: any) {
-      if (error.code !== 'auth/popup-closed-by-user') {
+      if (error.code !== "auth/popup-closed-by-user") {
         console.error("Failed to login with Google.", error);
       }
       throw error;
@@ -84,14 +84,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       // Update the user's display name
       await updateProfile(userCredential.user, { displayName: name });
-      
+
       // Update local state immediately so it reflects before the next onAuthStateChanged fire
       setUser({ email, name });
       setIsAuthenticated(true);
     } catch (error: any) {
-      if (error.code === 'auth/email-already-in-use') {
+      if (error.code === "auth/email-already-in-use") {
         throw new Error("An account with this email already exists.");
-      } else if (error.code === 'auth/weak-password') {
+      } else if (error.code === "auth/weak-password") {
         throw new Error("Password is too weak. Please use at least 6 characters.");
       } else {
         throw new Error(error.message);
@@ -108,11 +108,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   if (isLoading) {
-    return null; // Or a full screen loading spinner
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm text-muted-foreground font-medium">Loading AI Farm Assistant...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, loginWithGoogle, logout, signup, authModalOpen, setAuthModalOpen }}>
+    <AuthContext.Provider
+      value={{
+        isAuthenticated,
+        user,
+        login,
+        loginWithGoogle,
+        logout,
+        signup,
+        authModalOpen,
+        setAuthModalOpen,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

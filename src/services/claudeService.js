@@ -4,9 +4,9 @@ const BASE_URL = "https://api.groq.com/openai/v1/chat/completions";
 
 // Default models on Groq:
 // Vision: qwen/qwen3.8-27b (multimodal with vision support)
-// Text: qwen/qwen3.8-27b or openai/gpt-oss-120b
+// Text: llama-3.3-70b-versatile or qwen/qwen3.8-27b
 const DEFAULT_VISION_MODEL = "qwen/qwen3.8-27b";
-const DEFAULT_TEXT_MODEL = "qwen/qwen3.8-27b";
+const DEFAULT_TEXT_MODEL = "llama-3.3-70b-versatile";
 
 // ─────────────────────────────────────────────
 // Convert file to base64
@@ -60,7 +60,9 @@ async function callGroq(messages, model) {
   const apiKey = import.meta.env.VITE_GROQ_API_KEY;
 
   if (!apiKey) {
-    throw new Error("VITE_GROQ_API_KEY is not defined. Please check your .env file or deployment settings.");
+    throw new Error(
+      "VITE_GROQ_API_KEY is not defined. Please check your .env file or deployment settings.",
+    );
   }
 
   const response = await fetch(BASE_URL, {
@@ -81,13 +83,16 @@ async function callGroq(messages, model) {
 
   if (!response.ok) {
     console.error("GROQ API ERROR:", raw);
+    let errMsg = `Groq API Error: ${response.status} ${response.statusText}`;
     try {
       const errObj = JSON.parse(raw);
-      throw new Error(`Groq API Error: ${errObj.error?.message || response.status + " " + response.statusText}`);
-    } catch (e) {
-      if (e.message.startsWith("Groq API Error")) throw e;
-      throw new Error(`Groq API Error: ${response.status} ${response.statusText}`);
+      if (errObj.error?.message) {
+        errMsg = `Groq API Error: ${errObj.error.message}`;
+      }
+    } catch {
+      // Ignore JSON parse error
     }
+    throw new Error(errMsg);
   }
 
   const data = JSON.parse(raw);
@@ -159,7 +164,7 @@ RULES:
         ],
       },
     ],
-    visionModel
+    visionModel,
   );
 
   return parseJSON(text);
@@ -168,11 +173,7 @@ RULES:
 // ─────────────────────────────────────────────
 // WEATHER AI ADVICE
 // ─────────────────────────────────────────────
-export async function getWeatherAdvice(
-  weather,
-  cropType = "",
-  lang = "English"
-) {
+export async function getWeatherAdvice(weather, cropType = "", lang = "English") {
   const textModel = import.meta.env.VITE_GROQ_TEXT_MODEL || DEFAULT_TEXT_MODEL;
 
   const prompt = `
@@ -205,7 +206,7 @@ Output JSON ONLY.
         content: prompt,
       },
     ],
-    textModel
+    textModel,
   );
 
   return parseJSON(text);

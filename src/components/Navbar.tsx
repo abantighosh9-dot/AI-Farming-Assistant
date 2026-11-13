@@ -13,19 +13,19 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const languages = [
-  { code: 'en', label: 'English' },
-  { code: 'hi', label: 'Hindi' },
-  { code: 'bn', label: 'Bengali' },
-  { code: 'te', label: 'Telugu' },
-  { code: 'mr', label: 'Marathi' },
-  { code: 'ta', label: 'Tamil' },
-  { code: 'gu', label: 'Gujarati' },
-  { code: 'ur', label: 'Urdu' },
-  { code: 'kn', label: 'Kannada' },
-  { code: 'or', label: 'Odia' },
-  { code: 'ml', label: 'Malayalam' },
-  { code: 'pa', label: 'Punjabi' },
-  { code: 'as', label: 'Assamese' }
+  { code: "en", label: "English" },
+  { code: "hi", label: "Hindi" },
+  { code: "bn", label: "Bengali" },
+  { code: "te", label: "Telugu" },
+  { code: "mr", label: "Marathi" },
+  { code: "ta", label: "Tamil" },
+  { code: "gu", label: "Gujarati" },
+  { code: "ur", label: "Urdu" },
+  { code: "kn", label: "Kannada" },
+  { code: "or", label: "Odia" },
+  { code: "ml", label: "Malayalam" },
+  { code: "pa", label: "Punjabi" },
+  { code: "as", label: "Assamese" },
 ];
 
 export function Navbar() {
@@ -34,7 +34,7 @@ export function Navbar() {
   const [mobileLangOpen, setMobileLangOpen] = useState(false);
   const { t, i18n } = useTranslation();
   const dropdownRef = useRef<HTMLDivElement>(null);
-  
+
   const { isAuthenticated, user, logout, authModalOpen, setAuthModalOpen } = useAuth();
 
   const links = [
@@ -73,31 +73,36 @@ export function Navbar() {
             <span className="text-lg">AI Farm Assistant</span>
           </Link>
           <div className="hidden md:flex items-center gap-1">
-            {links.map(l => (
-              <Link key={l.to} to={l.to}
+            {links.map((l) => (
+              <Link
+                key={l.to}
+                to={l.to}
                 className="px-4 py-2 rounded-full text-sm font-medium text-foreground/70 hover:text-primary-dark hover:bg-secondary transition"
-                activeProps={{ className: "px-4 py-2 rounded-full text-sm font-semibold text-primary-dark bg-secondary" }}
+                activeProps={{
+                  className:
+                    "px-4 py-2 rounded-full text-sm font-semibold text-primary-dark bg-secondary",
+                }}
                 activeOptions={{ exact: true }}
               >
                 {t(l.label)}
               </Link>
             ))}
             <div className="relative" ref={dropdownRef}>
-              <button 
+              <button
                 onClick={() => setLangOpen(!langOpen)}
                 className="ml-2 inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-sm text-foreground/70 hover:bg-secondary transition"
               >
-                <Globe size={15} /> {(i18n.language || 'en').toUpperCase()}
+                <Globe size={15} /> {(i18n.language || "en").toUpperCase()}
               </button>
               {langOpen && (
                 <div className="absolute right-0 mt-2 w-48 rounded-xl border border-border bg-card p-1 shadow-lg z-50 animate-fade-up">
-                  {languages.map(lang => (
+                  {languages.map((lang) => (
                     <button
                       key={lang.code}
                       onClick={() => changeLanguage(lang.code)}
                       className={`w-full text-left px-3 py-2 text-sm rounded-lg transition ${
-                        (i18n.language || 'en') === lang.code 
-                          ? "bg-primary text-primary-foreground font-medium" 
+                        (i18n.language || "en") === lang.code
+                          ? "bg-primary text-primary-foreground font-medium"
                           : "text-foreground/80 hover:bg-secondary"
                       }`}
                     >
@@ -125,7 +130,10 @@ export function Navbar() {
                       <User size={16} /> Profile
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem className="gap-2 text-destructive focus:text-destructive cursor-pointer" onClick={logout}>
+                    <DropdownMenuItem
+                      className="gap-2 text-destructive focus:text-destructive cursor-pointer"
+                      onClick={logout}
+                    >
                       <LogOut size={16} /> Log out
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -140,8 +148,12 @@ export function Navbar() {
               )}
             </div>
           </div>
-          <button onClick={() => setOpen(o => !o)} className="md:hidden p-2 rounded-lg hover:bg-secondary" aria-label="Menu">
-            {open ? <X size={22}/> : <Menu size={22}/>}
+          <button
+            onClick={() => setOpen((o) => !o)}
+            className="md:hidden p-2 rounded-lg hover:bg-secondary"
+            aria-label="Menu"
+          >
+            {open ? <X size={22} /> : <Menu size={22} />}
           </button>
         </nav>
         {open && (
@@ -160,7 +172,10 @@ export function Navbar() {
                         <p className="text-xs text-muted-foreground">{user?.email}</p>
                       </div>
                     </div>
-                    <button onClick={logout} className="p-2 text-destructive hover:bg-destructive/10 rounded-xl transition">
+                    <button
+                      onClick={logout}
+                      className="p-2 text-destructive hover:bg-destructive/10 rounded-xl transition"
+                    >
                       <LogOut size={18} />
                     </button>
                   </div>
@@ -177,34 +192,41 @@ export function Navbar() {
                 )}
               </div>
 
-              {links.map(l => (
-                <Link key={l.to} to={l.to} onClick={() => setOpen(false)}
+              {links.map((l) => (
+                <Link
+                  key={l.to}
+                  to={l.to}
+                  onClick={() => setOpen(false)}
                   className="px-4 py-3 rounded-xl text-sm font-medium hover:bg-secondary"
-                  activeProps={{ className: "px-4 py-3 rounded-xl text-sm font-semibold bg-secondary text-primary-dark" }}
-                  activeOptions={{ exact: true }}>
+                  activeProps={{
+                    className:
+                      "px-4 py-3 rounded-xl text-sm font-semibold bg-secondary text-primary-dark",
+                  }}
+                  activeOptions={{ exact: true }}
+                >
                   {t(l.label)}
                 </Link>
               ))}
-              
+
               <div className="px-4 py-3 border-t border-border mt-2">
-                <button 
+                <button
                   onClick={() => setMobileLangOpen(!mobileLangOpen)}
                   className="w-full flex items-center justify-between rounded-xl text-sm font-medium hover:bg-secondary transition"
                 >
                   <div className="flex items-center gap-2 text-foreground/80">
-                    <Globe size={18} /> Language ({(i18n.language || 'en').toUpperCase()})
+                    <Globe size={18} /> Language ({(i18n.language || "en").toUpperCase()})
                   </div>
                 </button>
-                
+
                 {mobileLangOpen && (
                   <div className="mt-3 grid grid-cols-2 gap-2">
-                    {languages.map(lang => (
+                    {languages.map((lang) => (
                       <button
                         key={lang.code}
                         onClick={() => changeLanguage(lang.code)}
                         className={`text-left px-3 py-2.5 text-sm rounded-lg transition ${
-                          (i18n.language || 'en') === lang.code 
-                            ? "bg-primary text-primary-foreground font-medium" 
+                          (i18n.language || "en") === lang.code
+                            ? "bg-primary text-primary-foreground font-medium"
                             : "text-foreground/80 bg-secondary/50 hover:bg-secondary"
                         }`}
                       >

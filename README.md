@@ -19,13 +19,13 @@ Built for the hackathon with real-world social impact in mind.
 
 ## ✨ Features
 
-| Feature | Description |
-|---|---|
-| 🔍 **Crop Disease Detection** | Upload a leaf photo → instant AI diagnosis using Groq Vision |
-| 💊 **Treatment Advice** | Organic + chemical treatment options with dosage in local language |
-| 🌤️ **Weather-Based Planning** | Real-time weather → sow / irrigate / harvest advice per district |
-| 🌐 **Multilingual Support** | Hindi, Tamil, and English — switch anytime |
-| 📱 **Mobile Friendly** | Works on any device including low-end Android phones |
+| Feature                       | Description                                                        |
+| ----------------------------- | ------------------------------------------------------------------ |
+| 🔍 **Crop Disease Detection** | Upload a leaf photo → instant AI diagnosis using Groq Vision       |
+| 💊 **Treatment Advice**       | Organic + chemical treatment options with dosage in local language |
+| 🌤️ **Weather-Based Planning** | Real-time weather → sow / irrigate / harvest advice per district   |
+| 🌐 **Multilingual Support**   | Hindi, Tamil, and English — switch anytime                         |
+| 📱 **Mobile Friendly**        | Works on any device including low-end Android phones               |
 
 ---
 
@@ -143,10 +143,10 @@ ai-farming-assistant/
 ## 🌍 Supported Languages
 
 | Language | Code |
-|---|---|
-| English | `en` |
-| Hindi | `hi` |
-| Tamil | `ta` |
+| -------- | ---- |
+| English  | `en` |
+| Hindi    | `hi` |
+| Tamil    | `ta` |
 
 ---
 
@@ -183,12 +183,14 @@ ai-farming-assistant/
 ## 🔑 API Keys Setup
 
 ### Groq API (Free)
+
 1. Go to https://console.groq.com
 2. Sign up for free
 3. Click "Create API Key"
 4. Copy and paste into `.env`
 
 ### OpenWeather API (Free)
+
 1. Go to https://openweathermap.org/api
 2. Sign up for free
 3. Go to "My API Keys"
@@ -206,7 +208,7 @@ MIT License — feel free to use, modify, and distribute.
 
 Built with ❤️ for Indian farmers at a hackathon.
 
-> *"From a leaf photo to a farmer's livelihood — one AI call at a time."*
+> _"From a leaf photo to a farmer's livelihood — one AI call at a time."_
 
 ---
 

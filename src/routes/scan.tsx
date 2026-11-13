@@ -23,16 +23,9 @@ import jsPDF from "jspdf";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
-import {
-  analyzeCropImage,
-  getWeatherAdvice,
-} from "../services/claudeService.js";
+import { analyzeCropImage, getWeatherAdvice } from "../services/claudeService.js";
 
-import {
-  getWeather,
-  summariseWeather,
-  INDIAN_CITIES,
-} from "../services/weatherService.js";
+import { getWeather, summariseWeather, INDIAN_CITIES } from "../services/weatherService.js";
 
 export const Route = createFileRoute("/scan")({
   beforeLoad: ({ context }) => {
@@ -70,7 +63,6 @@ type Result = {
 
 const TABS = ["Organic", "Chemical", "Prevention"] as const;
 
-
 function ScanPage() {
   const { t } = useTranslation();
   const [file, setFile] = useState<File | null>(null);
@@ -80,15 +72,13 @@ function ScanPage() {
 
   const [result, setResult] = useState<Result | null>(null);
 
-  const [tab, setTab] =
-    useState<typeof TABS[number]>("Organic");
+  const [tab, setTab] = useState<(typeof TABS)[number]>("Organic");
 
   const [city, setCity] = useState("");
 
   const [weather, setWeather] = useState<any>(null);
 
-  const [weatherAdvice, setWeatherAdvice] =
-    useState<any>(null);
+  const [weatherAdvice, setWeatherAdvice] = useState<any>(null);
 
   const [weatherLoading, setWeatherLoading] = useState(false);
 
@@ -146,11 +136,7 @@ function ScanPage() {
       setWeather(summary);
 
       try {
-        const advice = await getWeatherAdvice(
-          summary,
-          result?.cropType || "general crops",
-          "en"
-        );
+        const advice = await getWeatherAdvice(summary, result?.cropType || "general crops", "en");
         setWeatherAdvice(advice);
       } catch (adviceErr: any) {
         console.warn("Weather AI advice error:", adviceErr);
@@ -164,20 +150,20 @@ function ScanPage() {
     }
   }
 
-function reset() {
-  setFile(null);
+  function reset() {
+    setFile(null);
 
-  setPreview(null);
+    setPreview(null);
 
-  setResult(null);
+    setResult(null);
 
-  setWeather(null);
+    setWeather(null);
 
-  setWeatherAdvice(null);
+    setWeatherAdvice(null);
 
-  setCity("");
-}
-function downloadReport() {
+    setCity("");
+  }
+  function downloadReport() {
     if (!result) {
       alert("No report available.");
       return;
@@ -188,11 +174,7 @@ function downloadReport() {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(22);
 
-    doc.text(
-      "AI Farm Assistant Report",
-      20,
-      20
-    );
+    doc.text("AI Farm Assistant Report", 20, 20);
 
     doc.setDrawColor(34, 197, 94);
 
@@ -213,38 +195,18 @@ function downloadReport() {
 
     doc.setFont("helvetica", "normal");
 
-    doc.text(
-      `Crop Type: ${result.cropType}`,
-      20,
-      y
-    );
+    doc.text(`Crop Type: ${result.cropType}`, 20, y);
 
     y += 8;
-    doc.text(
-      `Disease: ${
-        result.diseaseDetected
-          ? result.diseaseName
-          : "Healthy Crop"
-      }`,
-      20,
-      y
-    );
+    doc.text(`Disease: ${result.diseaseDetected ? result.diseaseName : "Healthy Crop"}`, 20, y);
 
     y += 8;
 
-    doc.text(
-      `Severity: ${result.severity}`,
-      20,
-      y
-    );
+    doc.text(`Severity: ${result.severity}`, 20, y);
 
     y += 8;
 
-    doc.text(
-      `Confidence: ${result.confidence}%`,
-      20,
-      y
-    );
+    doc.text(`Confidence: ${result.confidence}%`, 20, y);
     y += 15;
 
     // Summary
@@ -256,11 +218,7 @@ function downloadReport() {
 
     doc.setFont("helvetica", "normal");
 
-    const summaryLines =
-      doc.splitTextToSize(
-        result.summary,
-        165
-      );
+    const summaryLines = doc.splitTextToSize(result.summary, 165);
 
     doc.text(summaryLines, 20, y);
 
@@ -282,75 +240,47 @@ function downloadReport() {
         ...(result.treatment.prevention || []),
       ];
 
-      allTreatments.forEach(
-        (item, index) => {
-          const lines =
-            doc.splitTextToSize(
-              `${index + 1}. ${item}`,
-              165
-            );
+      allTreatments.forEach((item, index) => {
+        const lines = doc.splitTextToSize(`${index + 1}. ${item}`, 165);
 
-          doc.text(lines, 20, y);
+        doc.text(lines, 20, y);
 
-          y += lines.length * 7 + 5;
-        }
-      );
+        y += lines.length * 7 + 5;
+      });
     }
     // Weather
-  if (weather) {
-    y += 5;
+    if (weather) {
+      y += 5;
 
-    doc.setFont("helvetica", "bold");
-    doc.text("Weather Information", 20, y);
+      doc.setFont("helvetica", "bold");
+      doc.text("Weather Information", 20, y);
 
-    y += 10;
+      y += 10;
 
-    doc.setFont("helvetica", "normal");
+      doc.setFont("helvetica", "normal");
 
-    doc.text(`City: ${city}`, 20, y);
-    y += 8;
+      doc.text(`City: ${city}`, 20, y);
+      y += 8;
 
-    doc.text(
-      `Temperature: ${weather.currentTemp}°C`,
-      20,
-      y
-    );
-    y += 8;
+      doc.text(`Temperature: ${weather.currentTemp}°C`, 20, y);
+      y += 8;
 
-    doc.text(
-      `Humidity: ${weather.humidity}%`,
-      20,
-      y
-    );
-    y += 8;
+      doc.text(`Humidity: ${weather.humidity}%`, 20, y);
+      y += 8;
 
-    doc.text(
-      `Wind Speed: ${weather.windSpeed} m/s`,
-      20,
-      y
-    );
-    y += 8;
+      doc.text(`Wind Speed: ${weather.windSpeed} m/s`, 20, y);
+      y += 8;
 
-    doc.text(
-      `Rain Expected: ${
-        weather.willRain ? "Yes" : "No"
-      }`,
-      20,
-      y
-    );
+      doc.text(`Rain Expected: ${weather.willRain ? "Yes" : "No"}`, 20, y);
+    }
+
+    // Footer
+    doc.setFontSize(10);
+
+    doc.text("Generated by AI Farm Assistant", 20, 285);
+
+    doc.save("farm-report.pdf");
   }
-
-  // Footer
-  doc.setFontSize(10);
-
-  doc.text(
-    "Generated by AI Farm Assistant",
-    20,
-    285
-  );
-
-  doc.save("farm-report.pdf");
-}
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 md:py-14 space-y-8">
       {/* HEADER */}
@@ -360,13 +290,9 @@ function downloadReport() {
           Crop Analysis Dashboard
         </span>
 
-        <h1 className="mt-4 text-3xl sm:text-4xl font-bold text-primary-dark">
-          {t("scan_title")}
-        </h1>
+        <h1 className="mt-4 text-3xl sm:text-4xl font-bold text-primary-dark">{t("scan_title")}</h1>
 
-        <p className="mt-3 text-muted-foreground">
-          {t("scan_desc")}
-        </p>
+        <p className="mt-3 text-muted-foreground">{t("scan_desc")}</p>
       </header>
 
       {/* UPLOAD */}
@@ -392,9 +318,7 @@ function downloadReport() {
                 {t("scan_drag_drop")}
               </h3>
 
-              <p className="text-sm text-muted-foreground mt-1">
-                {t("scan_upload_hint")}
-              </p>
+              <p className="text-sm text-muted-foreground mt-1">{t("scan_upload_hint")}</p>
 
               <div className="mt-5 flex flex-wrap gap-2 justify-center">
                 <button
@@ -421,9 +345,7 @@ function downloadReport() {
             type="file"
             accept="image/*"
             hidden
-            onChange={(e) =>
-              onSelect(e.target.files?.[0])
-            }
+            onChange={(e) => onSelect(e.target.files?.[0])}
           />
 
           <input
@@ -432,9 +354,7 @@ function downloadReport() {
             accept="image/*"
             capture="environment"
             hidden
-            onChange={(e) =>
-              onSelect(e.target.files?.[0])
-            }
+            onChange={(e) => onSelect(e.target.files?.[0])}
           />
         </div>
 
@@ -446,10 +366,7 @@ function downloadReport() {
           >
             {scanning ? (
               <>
-                <Loader2
-                  className="animate-spin"
-                  size={18}
-                />
+                <Loader2 className="animate-spin" size={18} />
                 {t("scan_analyzing")}
               </>
             ) : (
@@ -482,13 +399,9 @@ function downloadReport() {
               </div>
 
               <div>
-                <h3 className="text-xl font-bold text-success">
-                  {t("scan_healthy")}
-                </h3>
+                <h3 className="text-xl font-bold text-success">{t("scan_healthy")}</h3>
 
-                <p className="text-muted-foreground mt-1">
-                  {t("scan_healthy_desc")}
-                </p>
+                <p className="text-muted-foreground mt-1">{t("scan_healthy_desc")}</p>
               </div>
             </div>
           ) : (
@@ -500,35 +413,27 @@ function downloadReport() {
 
                 <div className="flex-1">
                   <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-                    <h3 className="text-2xl font-bold text-destructive">
-                      {result.diseaseName}
-                    </h3>
+                    <h3 className="text-2xl font-bold text-destructive">{result.diseaseName}</h3>
 
                     <span className="text-xs font-semibold rounded-full bg-destructive/10 text-destructive px-3 py-1">
                       {result.severity}
                     </span>
                   </div>
 
-                  <p className="mt-2 text-muted-foreground leading-relaxed">
-                    {result.summary}
-                  </p>
+                  <p className="mt-2 text-muted-foreground leading-relaxed">{result.summary}</p>
 
                   <div className="mt-5">
                     <div className="flex justify-between text-sm font-medium mb-1.5">
                       <span>{t("scan_confidence")}</span>
 
-                      <span className="text-primary-dark">
-                        {result.confidence}%
-                      </span>
+                      <span className="text-primary-dark">{result.confidence}%</span>
                     </div>
 
                     <div className="h-2 rounded-full bg-secondary overflow-hidden">
                       <div
                         className="h-full bg-gradient-to-r from-primary to-primary-dark transition-all"
                         style={{
-                          width: `${parseInt(
-                            result.confidence
-                          )}%`,
+                          width: `${parseInt(result.confidence)}%`,
                         }}
                       />
                     </div>
@@ -548,19 +453,12 @@ function downloadReport() {
               <Pill size={20} />
             </div>
 
-            <h2 className="text-xl font-bold text-primary-dark">
-              {t("scan_treatment_advice")}
-            </h2>
+            <h2 className="text-xl font-bold text-primary-dark">{t("scan_treatment_advice")}</h2>
           </div>
 
           <div className="flex flex-nowrap overflow-x-auto gap-2 border-b border-border no-scrollbar">
             {TABS.map((t) => {
-              const Icon =
-                t === "Organic"
-                  ? Sprout
-                  : t === "Chemical"
-                  ? Pill
-                  : ShieldCheck;
+              const Icon = t === "Organic" ? Sprout : t === "Chemical" ? Pill : ShieldCheck;
 
               const active = tab === t;
 
@@ -583,24 +481,18 @@ function downloadReport() {
 
           <div className="mt-6">
             <ul className="space-y-3">
-              {(
-                tab === "Organic"
-                  ? result.treatment?.organic || []
-                  : tab === "Chemical"
+              {(tab === "Organic"
+                ? result.treatment?.organic || []
+                : tab === "Chemical"
                   ? result.treatment?.chemical || []
                   : result.treatment?.prevention || []
               ).map((it, i) => (
-                <li
-                  key={i}
-                  className="flex gap-3 items-start bg-secondary/50 rounded-2xl p-4"
-                >
+                <li key={i} className="flex gap-3 items-start bg-secondary/50 rounded-2xl p-4">
                   <span className="w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold grid place-items-center shrink-0 mt-0.5">
                     {i + 1}
                   </span>
 
-                  <span className="text-sm leading-relaxed">
-                    {it}
-                  </span>
+                  <span className="text-sm leading-relaxed">{it}</span>
                 </li>
               ))}
             </ul>
@@ -612,8 +504,7 @@ function downloadReport() {
       <section
         className="rounded-3xl p-6 sm:p-8 text-weather-foreground shadow-lift animate-fade-up relative overflow-hidden"
         style={{
-          background:
-            "linear-gradient(135deg, var(--weather), oklch(0.5 0.12 240))",
+          background: "linear-gradient(135deg, var(--weather), oklch(0.5 0.12 240))",
         }}
       >
         <div className="absolute -top-16 -right-16 w-64 h-64 rounded-full bg-white/10 blur-2xl" />
@@ -625,9 +516,7 @@ function downloadReport() {
               {t("scan_weather_advice")}
             </h2>
 
-            <p className="text-white/80 text-sm mt-1">
-              {t("scan_weather_desc")}
-            </p>
+            <p className="text-white/80 text-sm mt-1">{t("scan_weather_desc")}</p>
           </div>
 
           <select
@@ -640,11 +529,7 @@ function downloadReport() {
             </option>
 
             {INDIAN_CITIES.map((c: string) => (
-              <option
-                key={c}
-                value={c}
-                className="text-foreground"
-              >
+              <option key={c} value={c} className="text-foreground">
                 {c}
               </option>
             ))}
@@ -665,32 +550,22 @@ function downloadReport() {
             {
               icon: Thermometer,
               label: "Temperature",
-              value: weather
-                ? `${weather.currentTemp}°C`
-                : "--",
+              value: weather ? `${weather.currentTemp}°C` : "--",
             },
             {
               icon: Droplets,
               label: "Humidity",
-              value: weather
-                ? `${weather.humidity}%`
-                : "--",
+              value: weather ? `${weather.humidity}%` : "--",
             },
             {
               icon: Cloud,
               label: "Rain Chance",
-              value: weather
-                ? weather.willRain
-                  ? "Expected"
-                  : "No Rain"
-                : "--",
+              value: weather ? (weather.willRain ? "Expected" : "No Rain") : "--",
             },
             {
               icon: Wind,
               label: "Wind Speed",
-              value: weather
-                ? `${weather.windSpeed} m/s`
-                : "--",
+              value: weather ? `${weather.windSpeed} m/s` : "--",
             },
           ].map((s) => (
             <div
@@ -699,13 +574,9 @@ function downloadReport() {
             >
               <s.icon size={20} className="opacity-90" />
 
-              <div className="text-xs text-white/80 mt-2">
-                {s.label}
-              </div>
+              <div className="text-xs text-white/80 mt-2">{s.label}</div>
 
-              <div className="text-lg font-bold mt-0.5">
-                {s.value}
-              </div>
+              <div className="text-lg font-bold mt-0.5">{s.value}</div>
             </div>
           ))}
         </div>
@@ -726,17 +597,12 @@ function downloadReport() {
                 d: weatherAdvice.pestAlert,
               },
             ].map((c) => (
-              <div
-                key={c.t}
-                className="bg-white/10 rounded-2xl p-4 border border-white/15"
-              >
+              <div key={c.t} className="bg-white/10 rounded-2xl p-4 border border-white/15">
                 <div className="text-xs uppercase tracking-wide text-white/70 font-semibold">
                   {c.t}
                 </div>
 
-                <div className="text-sm mt-1.5 leading-relaxed">
-                  {c.d}
-                </div>
+                <div className="text-sm mt-1.5 leading-relaxed">{c.d}</div>
               </div>
             ))}
           </div>

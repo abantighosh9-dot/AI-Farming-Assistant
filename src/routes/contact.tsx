@@ -7,7 +7,11 @@ export const Route = createFileRoute("/contact")({
   head: () => ({
     meta: [
       { title: "Contact — AI Farm Assistant" },
-      { name: "description", content: "Get in touch with the AI Farm Assistant team. We're here to help farmers grow smarter." },
+      {
+        name: "description",
+        content:
+          "Get in touch with the AI Farm Assistant team. We're here to help farmers grow smarter.",
+      },
       { property: "og:title", content: "Contact AI Farm Assistant" },
       { property: "og:description", content: "Reach out for support, partnerships, or feedback." },
     ],
@@ -30,9 +34,11 @@ function Contact() {
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12 md:py-16">
       <header className="text-center max-w-2xl mx-auto animate-fade-up">
         <span className="inline-flex items-center gap-2 rounded-full bg-secondary text-primary-dark px-4 py-1.5 text-xs font-semibold">
-          <Leaf size={14}/> {t("contact_badge")}
+          <Leaf size={14} /> {t("contact_badge")}
         </span>
-        <h1 className="mt-4 text-3xl sm:text-4xl font-bold text-primary-dark">{t("contact_title")}</h1>
+        <h1 className="mt-4 text-3xl sm:text-4xl font-bold text-primary-dark">
+          {t("contact_title")}
+        </h1>
         <p className="mt-3 text-muted-foreground">{t("contact_desc")}</p>
       </header>
 
@@ -40,41 +46,94 @@ function Contact() {
         {/* Contact info */}
         <div className="lg:col-span-2 space-y-4 animate-fade-up">
           {[
-            { icon: Mail, title: t("contact_email"), value: "hello@aifarm.app", link: "mailto:hello@aifarm.app" },
-            { icon: Phone, title: t("contact_phone"), value: "+91 98765 43210", link: "tel:+919876543210" },
-            { icon: MapPin, title: t("contact_address"), value: "Green Tech Park, Bengaluru, India 560001" },
-          ].map(c => (
-            <a key={c.title} href={c.link ?? "#"} className="flex items-start gap-4 bg-card rounded-2xl p-5 border border-border hover:shadow-soft hover:-translate-y-0.5 transition-all">
-              <div className="w-11 h-11 rounded-xl bg-secondary text-primary grid place-items-center shrink-0"><c.icon size={20}/></div>
+            {
+              icon: Mail,
+              title: t("contact_email"),
+              value: "hello@aifarm.app",
+              link: "mailto:hello@aifarm.app",
+            },
+            {
+              icon: Phone,
+              title: t("contact_phone"),
+              value: "+91 98765 43210",
+              link: "tel:+919876543210",
+            },
+            {
+              icon: MapPin,
+              title: t("contact_address"),
+              value: "Green Tech Park, Bengaluru, India 560001",
+            },
+          ].map((c) => (
+            <a
+              key={c.title}
+              href={c.link ?? "#"}
+              className="flex items-start gap-4 bg-card rounded-2xl p-5 border border-border hover:shadow-soft hover:-translate-y-0.5 transition-all"
+            >
+              <div className="w-11 h-11 rounded-xl bg-secondary text-primary grid place-items-center shrink-0">
+                <c.icon size={20} />
+              </div>
               <div>
-                <div className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">{c.title}</div>
+                <div className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">
+                  {c.title}
+                </div>
                 <div className="font-semibold text-primary-dark mt-0.5">{c.value}</div>
               </div>
             </a>
           ))}
           <div className="rounded-2xl overflow-hidden border border-border bg-gradient-to-br from-secondary to-accent p-8 text-center">
-            <Leaf className="mx-auto text-primary animate-float" size={48} strokeWidth={1.4}/>
+            <Leaf className="mx-auto text-primary animate-float" size={48} strokeWidth={1.4} />
             <p className="mt-3 text-sm text-primary-dark font-medium">{t("contact_slogan")}</p>
           </div>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="lg:col-span-3 bg-card rounded-3xl p-6 sm:p-8 border border-border shadow-soft space-y-5 animate-fade-up">
+        <form
+          onSubmit={handleSubmit}
+          className="lg:col-span-3 bg-card rounded-3xl p-6 sm:p-8 border border-border shadow-soft space-y-5 animate-fade-up"
+        >
           <div className="grid sm:grid-cols-2 gap-4">
-            <Field label={t("contact_name_label")} name="name" placeholder={t("contact_name_placeholder")} required/>
-            <Field label={t("contact_email_label")} name="email" type="email" placeholder={t("contact_email_placeholder")} required/>
+            <Field
+              label={t("contact_name_label")}
+              name="name"
+              placeholder={t("contact_name_placeholder")}
+              required
+            />
+            <Field
+              label={t("contact_email_label")}
+              name="email"
+              type="email"
+              placeholder={t("contact_email_placeholder")}
+              required
+            />
           </div>
-          <Field label={t("contact_subject_label")} name="subject" placeholder={t("contact_subject_placeholder")} required/>
+          <Field
+            label={t("contact_subject_label")}
+            name="subject"
+            placeholder={t("contact_subject_placeholder")}
+            required
+          />
           <div>
-            <label className="text-sm font-medium text-primary-dark">{t("contact_message_label")}</label>
-            <textarea name="message" required rows={5} placeholder={t("contact_message_placeholder")}
-              className="mt-1.5 w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition resize-none"/>
+            <label className="text-sm font-medium text-primary-dark">
+              {t("contact_message_label")}
+            </label>
+            <textarea
+              name="message"
+              required
+              rows={5}
+              placeholder={t("contact_message_placeholder")}
+              className="mt-1.5 w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition resize-none"
+            />
           </div>
-          <button type="submit" className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-6 py-3 font-semibold hover:bg-primary-dark shadow-soft transition">
-            <Send size={16}/> {t("contact_send_btn")}
+          <button
+            type="submit"
+            className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-6 py-3 font-semibold hover:bg-primary-dark shadow-soft transition"
+          >
+            <Send size={16} /> {t("contact_send_btn")}
           </button>
           {sent && (
-            <p className="text-sm text-success font-medium animate-fade-up">{t("contact_success")}</p>
+            <p className="text-sm text-success font-medium animate-fade-up">
+              {t("contact_success")}
+            </p>
           )}
         </form>
       </div>
@@ -82,12 +141,17 @@ function Contact() {
   );
 }
 
-function Field({ label, ...props }: { label: string } & React.InputHTMLAttributes<HTMLInputElement>) {
+function Field({
+  label,
+  ...props
+}: { label: string } & React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <div>
       <label className="text-sm font-medium text-primary-dark">{label}</label>
-      <input {...props}
-        className="mt-1.5 w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition"/>
+      <input
+        {...props}
+        className="mt-1.5 w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition"
+      />
     </div>
   );
 }
