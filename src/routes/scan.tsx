@@ -18,6 +18,8 @@ import {
   Download,
   Save,
   Loader2,
+  LocateFixed,
+  MapPin,
 } from "lucide-react";
 import jsPDF from "jspdf";
 import { useTranslation } from "react-i18next";
@@ -27,6 +29,7 @@ import { analyzeCropImage, getWeatherAdvice } from "../services/claudeService.js
 
 import {
   getWeather,
+  getWeatherByCoordinates,
   summariseWeather,
   generateLocalWeatherAdvice,
   INDIAN_LOCATIONS,
@@ -87,6 +90,8 @@ function ScanPage() {
   const [weatherAdvice, setWeatherAdvice] = useState<any>(null);
 
   const [weatherLoading, setWeatherLoading] = useState(false);
+  const [detectingLocation, setDetectingLocation] = useState(false);
+  const [isLiveLocation, setIsLiveLocation] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -161,6 +166,81 @@ function ScanPage() {
     }
   }
 
+  function detectLiveLocation() {
+    if (!navigator.geolocation) {
+      toast.error("Geolocation is not supported by your browser.");
+      return;
+    }
+
+    setDetectingLocation(true);
+    toast.info("Detecting your farm location via GPS...");
+
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        try {
+          const { latitude, longitude } = pos.coords;
+          setWeatherLoading(true);
+
+          const raw = await getWeatherByCoordinates(latitude, longitude);
+          const summary = summariseWeather(raw);
+          const locationName =
+            summary.city && summary.city !== "Unknown"
+              ? summary.city
+              : `GPS (${latitude.toFixed(2)}°, ${longitude.toFixed(2)}°)`;
+
+          setCity(locationName);
+          setIsLiveLocation(true);
+          setWeather(summary);
+
+          // Real-time agronomic advice for this exact location
+          const localAdvice = generateLocalWeatherAdvice(
+            summary,
+            result?.cropType || "general crops",
+          );
+          setWeatherAdvice(localAdvice);
+          toast.success(`Live farm location detected: ${locationName}`);
+
+          // Try AI advice
+          try {
+            const aiAdvice = await getWeatherAdvice(
+              summary,
+              result?.cropType || "general crops",
+              "en",
+            );
+            if (aiAdvice && (aiAdvice.mainAdvice || aiAdvice.irrigationAdvice)) {
+              setWeatherAdvice(aiAdvice);
+            }
+          } catch (aiErr) {
+            console.warn("AI advice note:", aiErr);
+          }
+        } catch (err: any) {
+          console.error("GPS Weather error:", err);
+          toast.error(`Failed to get weather for location: ${err.message || "Unknown error"}`);
+        } finally {
+          setWeatherLoading(false);
+          setDetectingLocation(false);
+        }
+      },
+      (err) => {
+        setDetectingLocation(false);
+        if (err.code === err.PERMISSION_DENIED) {
+          toast.error("Location permission denied. Please allow location access in your browser.");
+        } else if (err.code === err.POSITION_UNAVAILABLE) {
+          toast.error("Location signal unavailable. Please select from the list below.");
+        } else if (err.code === err.TIMEOUT) {
+          toast.error("Location request timed out. Please try again or select from the list.");
+        } else {
+          toast.error("Unable to retrieve location.");
+        }
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 60000,
+      },
+    );
+  }
+
   function reset() {
     setFile(null);
 
@@ -173,6 +253,7 @@ function ScanPage() {
     setWeatherAdvice(null);
 
     setCity("");
+    setIsLiveLocation(false);
   }
   function downloadReport() {
     if (!result) {
@@ -520,37 +601,62 @@ function ScanPage() {
       >
         <div className="absolute -top-16 -right-16 w-64 h-64 rounded-full bg-white/10 blur-2xl" />
 
-        <div className="relative flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="relative flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
-            <h2 className="text-2xl font-bold flex items-center gap-2">
-              <Cloud />
-              {t("scan_weather_advice")}
-            </h2>
+            <div className="flex flex-wrap items-center gap-2">
+              <h2 className="text-2xl font-bold flex items-center gap-2">
+                <Cloud />
+                {t("scan_weather_advice")}
+              </h2>
+              {isLiveLocation && (
+                <span className="inline-flex items-center gap-1 text-xs bg-white/20 text-white font-medium px-3 py-1 rounded-full backdrop-blur border border-white/25">
+                  <MapPin size={13} className="text-white" /> Live GPS: {city}
+                </span>
+              )}
+            </div>
 
             <p className="text-white/80 text-sm mt-1">{t("scan_weather_desc")}</p>
           </div>
 
-          <select
-            value={city}
-            onChange={(e) => {
-              const val = e.target.value;
-              setCity(val);
-              if (val) {
-                loadWeather(val);
-              }
-            }}
-            className="w-full sm:w-auto bg-white/15 backdrop-blur border border-white/20 rounded-full px-4 py-2 text-sm font-medium text-white outline-none cursor-pointer"
-          >
-            <option value="" className="text-foreground">
-              {t("scan_select_city")}
-            </option>
+          <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+            <button
+              type="button"
+              onClick={detectLiveLocation}
+              disabled={detectingLocation || weatherLoading}
+              className="inline-flex items-center gap-2 rounded-full bg-white text-primary-dark hover:bg-white/90 px-4 py-2 text-sm font-semibold shadow-soft transition disabled:opacity-50 cursor-pointer"
+              title="Detect your real-time farm GPS coordinates"
+            >
+              {detectingLocation ? (
+                <Loader2 size={16} className="animate-spin" />
+              ) : (
+                <LocateFixed size={16} className="text-primary" />
+              )}
+              {detectingLocation ? "Detecting GPS..." : "📍 Detect Farm GPS"}
+            </button>
 
-            {INDIAN_LOCATIONS.map((loc) => (
-              <option key={loc.label} value={loc.query} className="text-foreground">
-                {loc.label}
+            <select
+              value={city}
+              onChange={(e) => {
+                const val = e.target.value;
+                setCity(val);
+                setIsLiveLocation(false);
+                if (val) {
+                  loadWeather(val);
+                }
+              }}
+              className="w-full sm:w-auto bg-white/15 backdrop-blur border border-white/20 rounded-full px-4 py-2 text-sm font-medium text-white outline-none cursor-pointer"
+            >
+              <option value="" className="text-foreground">
+                {t("scan_select_city")}
               </option>
-            ))}
-          </select>
+
+              {INDIAN_LOCATIONS.map((loc) => (
+                <option key={loc.label} value={loc.query} className="text-foreground">
+                  {loc.label}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         <button

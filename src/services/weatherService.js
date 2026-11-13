@@ -83,6 +83,39 @@ export async function getWeather(city) {
 }
 
 // ─────────────────────────────────────────────
+// Fetch Weather by Real-time GPS Coordinates
+// ─────────────────────────────────────────────
+export async function getWeatherByCoordinates(lat, lon) {
+  const apiKey = import.meta.env.VITE_WEATHER_API_KEY;
+
+  if (!apiKey) {
+    throw new Error(
+      "VITE_WEATHER_API_KEY is not defined. Please check your .env file or deployment settings.",
+    );
+  }
+
+  const url = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&cnt=8`;
+
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    let msg = `Weather fetch failed: ${response.status} ${response.statusText}`;
+    try {
+      const errorBody = await response.text();
+      const err = JSON.parse(errorBody);
+      if (err.message) {
+        msg = `OpenWeather: ${err.message}`;
+      }
+    } catch {
+      // Ignore JSON parse error
+    }
+    throw new Error(msg);
+  }
+
+  return response.json();
+}
+
+// ─────────────────────────────────────────────
 // Weather Summary
 // ─────────────────────────────────────────────
 export function summariseWeather(data) {
